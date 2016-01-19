@@ -22,7 +22,15 @@ class DependenciesTest extends \PHPUnit_Framework_TestCase
             ],
             'logger' => [
                 'name' => 'app',
-                'path' => __DIR__,
+                'path' => __DIR__ . '/tmp/app.log',
+            ],
+            'db'                                => [
+                'dsn'     => 'sqlite:' . __DIR__ . '/tmp/db.sq3',
+                'user'    => null,
+                'pass'    => null,
+                'options' => [
+
+                ],
             ],
         ],
     ];
@@ -33,30 +41,52 @@ class DependenciesTest extends \PHPUnit_Framework_TestCase
         $app = new \Slim\App(self::$settings);
         require __DIR__ . '/../app/dependencies.php';
         self::$container = $container;
+    }
+
+    public static function tearDownAfterClass()
+    {
         @session_destroy();
     }
 
-    public function testViewInContainer()
+    public function testView()
     {
         $view = self::$container->get('view');
         $this->assertInstanceOf('\Slim\Views\Twig', $view);
     }
 
-    public function testFlashInContainer()
+    public function testFlash()
     {
         $flash = self::$container->get('flash');
         $this->assertInstanceOf('\Slim\Flash\Messages', $flash);
     }
 
-    public function testLoggerInContainer()
+    public function testLogger()
     {
         $logger = self::$container->get('logger');
         $this->assertInstanceOf('\Monolog\Logger', $logger);
     }
 
-    public function testEventsInContainer()
+    public function testEvents()
     {
         $events = self::$container->get('events');
         $this->assertInstanceOf('\Zend\EventManager\EventManagerInterface', $events);
+    }
+
+    public function testDbAuthAdapter()
+    {
+        $adapter = self::$container->get('authentication_db_adapter');
+        $this->assertInstanceOf('\GrEduLabs\Authentication\Adapter\Pdo', $adapter);
+    }
+
+    public function testAuthStorage()
+    {
+        $storage = self::$container->get('authentication_storage');
+        $this->assertInstanceOf('\Zend\Authentication\Storage\StorageInterface', $storage);
+    }
+
+    public function testAuthService()
+    {
+        $service = self::$container->get('authentication_service');
+        $this->assertInstanceOf('\Zend\Authentication\AuthenticationService', $service);
     }
 }
