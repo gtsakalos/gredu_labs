@@ -1,10 +1,10 @@
 CREATE TABLE `school` (
     `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
     `registryNo` varchar(255) NOT NULL,
-    `streetAddress` varchar(255) NOT NULL,
-    `phoneNumber` varchar(255) NOT NULL,
-    `faxNumber` varchar(255) NOT NULL,
-    `email` varchar(255) NOT NULL,
+    `streetAddress` varchar(255),
+    `phoneNumber` varchar(255),
+    `faxNumber` varchar(255),
+    `email` varchar(255),
     `educationLevel` varchar(255) NOT NULL,
     `unitType` varchar(255) NOT NULL,
     `category` varchar(255) NOT NULL,
@@ -42,16 +42,21 @@ CREATE TABLE `itemCategory` (
 ;
 CREATE TABLE `application` (
     `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
-    `school_id` integer NOT NULL
+    `school_id` integer NOT NULL,
+    `created_at` datetime NOT NULL,
+    `modified_at` datetime NOT NULL,
+    `apply_for` varchar(255) NOT NULL,
+    `new_lab` bool NOT NULL,
+    `comments` longtext
 )
 ;
 ALTER TABLE `application` ADD CONSTRAINT `school_id_refs_id_c55b46c6` FOREIGN KEY (`school_id`) REFERENCES `school` (`id`);
 CREATE TABLE `applicationItem` (
     `id` integer AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    `application_id` integer NOT NULL,
     `lab_id` integer NOT NULL,
     `category_id` integer NOT NULL,
-    `quantity` integer NOT NULL,
-    `application_id` integer NOT NULL
+    `quantity` integer NOT NULL
 )
 ;
 ALTER TABLE `applicationItem` ADD CONSTRAINT `category_id_refs_id_e1f1b2d8` FOREIGN KEY (`category_id`) REFERENCES `itemCategory` (`id`);
