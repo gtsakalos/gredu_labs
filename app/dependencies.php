@@ -23,9 +23,8 @@ $container['view'] = function ($c) {
         $c->get('request')->getUri()
     ));
     $view->addExtension(new Twig_Extension_Debug());
-    $view->addExtension(new GrEduLabs\Twig\Extension\Flash(
-        $c->get('flash'),
-        'flash.twig'
+    $view->addExtension(new Knlv\Slim\Views\TwigMessages(
+        $c->get('flash')
     ));
 
     return $view;
@@ -51,11 +50,19 @@ $container['logger'] = function ($c) {
     return $logger;
 };
 
+// Event manager
+
 $container['events'] = function ($c) {
     return new \Zend\EventManager\EventManager(
         new \Zend\EventManager\SharedEventManager(),
         ['events']
     );
+};
+
+// Csrf guard
+
+$container['csrf'] = function ($c) {
+    return new \Slim\Csrf\Guard;
 };
 
 // Database
@@ -90,7 +97,6 @@ $container['authentication_cas_adapter'] = function ($c) {
     return new GrEduLabs\Authentication\Adapter\Cas($settings['phpcas']);
 };
 
-
 $container['authentication_storage'] = function ($c) {
     return new \GrEduLabs\Authentication\Storage\PhpSession();
 };
@@ -98,6 +104,13 @@ $container['authentication_storage'] = function ($c) {
 $container['authentication_service'] = function ($c) {
     return new \Zend\Authentication\AuthenticationService(
         $c->get('authentication_storage')
+    );
+};
+
+$container['authentication_cas_logout_middleware'] = function ($c) {
+    return new GrEduLabs\Middleware\CasLogout(
+        $c->get('authentication_service'),
+        $c->get('authentication_cas_adapter')
     );
 };
 
@@ -125,6 +138,16 @@ $container['maybe_identity'] = function ($c) {
     };
 };
 
+// Inventory service
+
+$container['inventory_service'] = function ($c) {
+    $settings = $c->get('settings');
+
+    return new GrEduLabs\Inventory\GuzzleHttpService(
+        new GuzzleHttp\Client($settings['inventory'])
+    );
+};
+
 // Actions
 
 $container['GrEduLabs\\Action\\User\\Login'] = function ($c) {
@@ -132,7 +155,14 @@ $container['GrEduLabs\\Action\\User\\Login'] = function ($c) {
     $adapter = $c->get('authentication_db_adapter');
     $service->setAdapter($adapter);
 
-    return new GrEduLabs\Action\User\Login($c->get('view'), $service, $adapter, $c->get('flash'));
+    return new GrEduLabs\Action\User\Login(
+        $c->get('view'),
+        $service,
+        $adapter,
+        $c->get('flash'),
+        $c->get('csrf'),
+        $c->get('router')->pathFor('index')
+    );
 };
 
 $container['GrEduLabs\\Action\\User\\LoginSso'] = function ($c) {
