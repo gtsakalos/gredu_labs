@@ -45,7 +45,7 @@ class SchoolService
         
         $stm = $this->db->prepare($query);
         
-        if (!stm)
+        if (!$stm)
         {
             return $this->db->errorInfo();
         }
