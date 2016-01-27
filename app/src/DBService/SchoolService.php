@@ -26,14 +26,33 @@ class SchoolService
                 return -1;
             }
         }
+
         foreach ($optional as $value){
             if (array_key_exists($value, $data)){
                 $$value = $data[$value];
             }
+            else
+            {
+                $$value = '';
+            }
         }
 
-        $query = "INSERT INTO `school` (`registryNo`, `streetAddress`, `phoneNumber`, `faxNumber`, `email`, `educationLevel`, `unitType`, `category`, `eduAdmin`, `regionEduAdmin`) VALUES ('regNo', 'strAd', 'phone', 'fax', 'email', 'edulvl', 'utype', 'cat', 'eadm', 'readm')";
-        $this->db->query($query);
+        $query = "INSERT INTO `school` (`registryNo`, `streetAddress`,
+            `phoneNumber`, `faxNumber`, `email`, `educationLevel`, `unitType`,
+            `category`, `eduAdmin`, `regionEduAdmin`) VALUES ('$registryNo',
+            '$streetAddress', '$phoneNumber', '$faxNumber', '$email',
+            '$educationLevel', '$unitType', '$category', '$eduAdmin', '$regionEduAdmin')";
+        
+        $stm = $this->db->prepare($query);
+        
+        if (!stm)
+        {
+            return $this->db->errorInfo();
+        }
+        else
+        {
+            $stm->execute();
+        }
     }
     
     
