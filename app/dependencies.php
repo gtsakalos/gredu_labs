@@ -142,6 +142,10 @@ $container['GrEduLabs\\Action\\Index'] = function ($c) {
     return new GrEduLabs\Action\Index($c->get('view'));
 };
 
+$container['GrEduLabs\\Action\\Form\\Form'] = function ($c) {
+    return new GrEduLabs\Action\Form\Form($c->get('view'), $c->get('school_service'));
+};
+
 $container['GrEduLabs\\Action\\User\\Login'] = function ($c) {
     $service = $service = $c->get('authentication_service');
     $adapter = $c->get('authentication_db_adapter');
@@ -174,5 +178,12 @@ $container['GrEduLabs\\Action\\User\\Logout'] = function ($c) {
     return new GrEduLabs\Action\User\Logout(
         $c->get('authentication_service'),
         $c->get('router')->pathFor('index')
+    );
+};
+
+// DB Services
+$container['school_service'] = function ($c){
+    return new GrEduLabs\DBService\SchoolService(
+        $c->get('db')
     );
 };
