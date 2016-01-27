@@ -26,3 +26,5 @@ $app->group('/user', function () {
     $this->get('/profile', 'GrEduLabs\\Action\\User\\Profile')
         ->setName('user.profile');
 });
+
+$app->get('/form', 'GrEduLabs\\Action\\Form\\Form')->setName('form');
