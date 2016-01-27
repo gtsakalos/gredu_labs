@@ -56,7 +56,24 @@ class SchoolService
     }
     
     
-    public function getSchool()
+    public function getSchool($id)
     {
+        $query = "SELECT `school`.`id`, `school`.`registryNo`,
+            `school`.`streetAddress`, `school`.`phoneNumber`, `school`.`faxNumber`,
+            `school`.`email`, `school`.`educationLevel`, `school`.`unitType`,
+            `school`.`category`, `school`.`eduAdmin`, `school`.`regionEduAdmin`
+            FROM `school` WHERE `school`.`id` = $id";
+        $stm = $this->db->prepare($query);
+        
+        if (!stm)
+        {
+            return $this->db->errorInfo();
+        }
+        else
+        {
+           $stm->execute();
+           $result= $stm->fetchObject();
+           return $result;
+        }
     }
 }
