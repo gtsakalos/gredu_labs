@@ -3,23 +3,26 @@
 namespace GrEduLabs\DBService;
 
 use PDO as PDOConnection;
+use R;
+
 
 class TeacherService
 {
-    public function __construct(PDOConnection $db)
+    
+    public function __construct($school_service)
     {
-        $this->db = $db;
+        $this->school_service = $school_service;
     }
 
-    
     public function createTeacher(Array $data)
     {
+        $teacher = R::dispense('teacher');
         $required = ['school_id', 'name', 'surname', 'phoneNumber', 'labSupervisor', 'schoolPrincipal'];
         $optional = ['speciality', 'email'];
 
         foreach ($required as $value){
             if (array_key_exists($value, $data)){
-                $$value = $data[$value];
+                $teacher[$value] = $data[$value];
             }
             else
             {
@@ -29,70 +32,35 @@ class TeacherService
 
         foreach ($optional as $value){
             if (array_key_exists($value, $data)){
-                $$value = $data[$value];
+                $teacher[$value] = $data[$value];
             }
             else
             {
                 $$value = '';
             }
         }
-
-        $query = "INSERT INTO `teacher` (`school_id`, `name`, `surname`,
-            `speciality`, `phoneNumber`, `email`, `labSupervisor`,
-            `schoolPrincipal`) VALUES ($school_id, '$name', '$surname', '$speciality',
-            '$phoneNumber', '$email', $labSupervisor, $schoolPrincipal";
         
-        $stm = $this->db->prepare($query);
+        $school = $this->school_service->getSchool($teacher['school_id']);
+        $teacher->school = $school;
+        $id = R::store($teacher);
+        return $id;
         
-        if (!$stm)
-        {
-            return $this->db->errorInfo();
-        }
-        else
-        {
-            $stm->execute();
-        }
     }
     
     
     public function getTeacherById($id)
     {
-        $query = "SELECT `teacher`.`id`, `teacher`.`school_id`,
-            `teacher`.`name`, `teacher`.`surname`, `teacher`.`speciality`,
-            `teacher`.`phoneNumber`, `teacher`.`email`, `teacher`.`labSupervisor`,
-            `teacher`.`schoolPrincipal` FROM `teacher` WHERE `teacher`.`id` = $id";
-        $stm = $this->db->prepare($query);
-        
-        if (!stm)
-        {
-            return $this->db->errorInfo();
-        }
-        else
-        {
-           $stm->execute();
-           $result= $stm->fetchObject();
-           return $result;
-        }
+        $teacher = R::load('teacher', $id);
+        return $teacher;
     }
     
     
     public function getTeacherBySchoolId($id)
     {
-        $query = "SELECT `teacher`.`id`, `teacher`.`school_id`,
-            `teacher`.`name`, `teacher`.`surname`, `teacher`.`speciality`,
-            `teacher`.`phoneNumber`, `teacher`.`email`, `teacher`.`labSupervisor`,
-            `teacher`.`schoolPrincipal` FROM `teacher` WHERE `teacher`.`school_id` = $id";
-        $stm = $this->db->prepare($query);
+        $school = $this->school_service->getSchool(2);
+        $teacher = $school->ownTeacher;
+        return $teacher;
         
-        if (!stm)
-        {
-            return $this->db->errorInfo();
-        }
-        else
-        {
-           $stm->execute();
-           $result= $stm->fetchObject();
-           return $result;
-        }
     }
+    
 }
