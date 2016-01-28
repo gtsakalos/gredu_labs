@@ -143,7 +143,10 @@ $container['GrEduLabs\\Action\\Index'] = function ($c) {
 };
 
 $container['GrEduLabs\\Action\\Form\\Form'] = function ($c) {
-    return new GrEduLabs\Action\Form\Form($c->get('view'), $c->get('teacher_service'));
+    return new GrEduLabs\Action\Form\Form(
+        $c->get('view'), 
+        $c->get('school_service'),
+        $c->get('teacher_service'));
 };
 
 $container['GrEduLabs\\Action\\User\\Login'] = function ($c) {
@@ -183,13 +186,11 @@ $container['GrEduLabs\\Action\\User\\Logout'] = function ($c) {
 
 // DB Services
 $container['school_service'] = function ($c){
-    return new GrEduLabs\DBService\SchoolService(
-        $c->get('db')
-    );
+    return new GrEduLabs\DBService\SchoolService();
 };
 
 $container['teacher_service'] = function ($c){
     return new GrEduLabs\DBService\TeacherService(
-        $c->get('db')
+        $c->get('school_service')   
     );
 };
