@@ -11,7 +11,6 @@ class SchoolService
     public function createSchool(Array $data)
     {
         $school = R::dispense('school');
-        $school->registryNo = 1;
         $required = ['registryNo', 'educationLevel', 'unitType', 'category', 'eduAdmin', 'regionEduAdmin'];
         $optional = ['streetAddress', 'phoneNumber', 'faxNumber', 'email'];
 
@@ -31,7 +30,7 @@ class SchoolService
             }
             else
             {
-                $$value = '';
+                $school[$value] = '';
             }
         }
 
