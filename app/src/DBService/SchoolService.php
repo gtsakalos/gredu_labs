@@ -3,23 +3,21 @@
 namespace GrEduLabs\DBService;
 
 use PDO as PDOConnection;
+use R;
 
 class SchoolService
 {
-    public function __construct(PDOConnection $db)
-    {
-        $this->db = $db;
-    }
 
-    
     public function createSchool(Array $data)
     {
+        $school = R::dispense('school');
+        $school->registryNo = 1;
         $required = ['registryNo', 'educationLevel', 'unitType', 'category', 'eduAdmin', 'regionEduAdmin'];
         $optional = ['streetAddress', 'phoneNumber', 'faxNumber', 'email'];
 
         foreach ($required as $value){
             if (array_key_exists($value, $data)){
-                $$value = $data[$value];
+               $school[$value] = $data[$value];
             }
             else
             {
@@ -29,7 +27,7 @@ class SchoolService
 
         foreach ($optional as $value){
             if (array_key_exists($value, $data)){
-                $$value = $data[$value];
+                $school[$value] = $data[$value];
             }
             else
             {
@@ -37,43 +35,14 @@ class SchoolService
             }
         }
 
-        $query = "INSERT INTO `school` (`registryNo`, `streetAddress`,
-            `phoneNumber`, `faxNumber`, `email`, `educationLevel`, `unitType`,
-            `category`, `eduAdmin`, `regionEduAdmin`) VALUES ('$registryNo',
-            '$streetAddress', '$phoneNumber', '$faxNumber', '$email',
-            '$educationLevel', '$unitType', '$category', '$eduAdmin', '$regionEduAdmin')";
-        
-        $stm = $this->db->prepare($query);
-        
-        if (!$stm)
-        {
-            return $this->db->errorInfo();
-        }
-        else
-        {
-            $stm->execute();
-        }
+        $id = R::store($school);
+        return $id;
     }
     
     
     public function getSchool($id)
     {
-        $query = "SELECT `school`.`id`, `school`.`registryNo`,
-            `school`.`streetAddress`, `school`.`phoneNumber`, `school`.`faxNumber`,
-            `school`.`email`, `school`.`educationLevel`, `school`.`unitType`,
-            `school`.`category`, `school`.`eduAdmin`, `school`.`regionEduAdmin`
-            FROM `school` WHERE `school`.`id` = $id";
-        $stm = $this->db->prepare($query);
-        
-        if (!stm)
-        {
-            return $this->db->errorInfo();
-        }
-        else
-        {
-           $stm->execute();
-           $result= $stm->fetchObject();
-           return $result;
-        }
+        $school = R::load('school', $id);
+        return $school;
     }
 }
