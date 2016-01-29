@@ -62,7 +62,6 @@ class LabService
     {
         $school = $this->school_service->getSchool($id);
         $labs = $school->ownLab;
-        print_r($labs);
         return $labs;
         
     }
