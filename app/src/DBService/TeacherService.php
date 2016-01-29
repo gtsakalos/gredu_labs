@@ -2,7 +2,6 @@
 
 namespace GrEduLabs\DBService;
 
-use PDO as PDOConnection;
 use R;
 
 
@@ -55,11 +54,11 @@ class TeacherService
     }
     
     
-    public function getTeacherBySchoolId($id)
+    public function getTeachersBySchoolId($id)
     {
-        $school = $this->school_service->getSchool(2);
-        $teacher = $school->ownTeacher;
-        return $teacher;
+        $school = $this->school_service->getSchool($id);
+        $teachers = $school->ownTeacher;
+        return $teachers;
         
     }
     
