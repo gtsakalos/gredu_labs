@@ -26,11 +26,19 @@ class Form
      * Constructor
      * @param Twig $view
      */
-    public function __construct(Twig $view,TeacherService $teacher_service)
+    public function __construct(
+        Twig $view,
+        $school_service, 
+        $teacher_service, 
+        $lab_service,
+        $equipment_service
+        )
     {
-        $this->view = $view;
-        //$this->school_service = $school_service;
+
+        $this->school_service = $school_service;
         $this->teacher_service = $teacher_service;
+        $this->lab_service = $lab_service;
+        $this->equipment_service = $equipment_service;
     }
 
     public function __invoke(Request $req, Response $res)
@@ -66,13 +74,30 @@ class Form
             'labSupervisor' => 1,
             'schoolPrincipal' => 0,
         ];
+
+        $lab_array = [
+            'name' => 'ergastirio tade',
+            'school' => 4,
+            'teacher' => 2,
+            'area' => 40,
+        ];
+
+        $soft = [
+            'name' => 'windows millenium',
+            'manufacturer' => 'microsoft',
+            'website' => 'www.foo.gr'
+        ];
         //$result = $this->teacher_service->createTeacher($test3);
-        $result = $this->teacher_service->getTeacherBySchoolId(1);
+        //$result = $this->teacher_service->getTeacherBySchoolId(1);
         //$result = $this->school_service->createSchool($test2);
         //$result = $this->school_service->getSchool(11);
-        print_r($result);
+        //print_r($result);
         //echo $result;
         #$this->foo = new SchoolService($this->db);
         #return $this->view->render($res, 'form.twig');
+        //$this->lab_service->createLab($lab_array);
+        //$result = $this->lab_service->getLabsBySchoolId(1);
+        $result = $this->equipment_service->getAllSoftwareCategories();
+        print_r($result);
     }
 }
