@@ -25,5 +25,8 @@ $app = new \Slim\App([
 require 'app/dependencies.php';
 require 'app/middleware.php';
 require 'app/routes.php';
+require 'app/src/DBService/rb.php';
+
+R::setup( 'mysql:host=localhost;dbname=', '', '' );
 
 $app->run();
