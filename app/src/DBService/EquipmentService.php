@@ -10,9 +10,10 @@ class EquipmentService
 
     // Item Category Actions
     
-    public function __construct($school_service)
+    public function __construct($school_service, $lab_service)
     {
         $this->school_service = $school_service;
+        $this->lab_service = $lab_service;
     }
 
     public function createItemCategory($name){
@@ -65,17 +66,17 @@ class EquipmentService
 
     //Existing Item Actions
 
-    public function createItem(Array $data){
+    public function createExistingItem(Array $data){
         required = ['location', 'category', 'description', 'qty', 'lab', 'purchasedate' ];
+        $item = R::dispense('existingitem');
         foreach ($required as $value){
-            $item = R::dispense('existingitem');
             if (array_key_exists($value, $data))
             {
                 $item[$value] = data[$value];
             }
             else
             {
-                return -1
+                return -1;
             }
             if (array_key_exists('comments', $data))
             {
@@ -87,7 +88,8 @@ class EquipmentService
             }
             R::store($item);
         }
-    
     }
+
+
     
 }
