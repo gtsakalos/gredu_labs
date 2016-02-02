@@ -60,4 +60,43 @@ class ApplicationService
         
     }
     
+    public function createItem(Array $data){
+        required = ['lab', 'category', 'qty', 'application'];
+        $item = R::dispense('item');
+        foreach ($required as $value){
+            if (array_key_exists($value, $data))
+            {
+                if ($value == 'lab')
+                {
+                    $lab_id = $data['lab'];
+                }
+                else if ($value == 'category'){
+                    $category_id = $data['category'];
+                }
+                else if ($value == 'application')
+                {
+                    $application_id = $data['application']
+                }
+                else
+                {
+                    $item[$value] = data[$value];
+                }
+            else
+            {
+                return -1;
+            }
+            if (array_key_exists('comments', $data))
+            {
+                $item['comments'] = $data['comments'];
+            }
+            $application = getApplicationById($application_id);
+            $lab = $this->lab_service->getLabById($lab_id);
+            $item_category = getItemCategoryById($category_id);
+            
+            $item->application = $application;
+            $item->itemcategory = $item_category;
+            $item->lab = $lab;
+            $id = R::store($item);
+            return $id;
+    }
 }
