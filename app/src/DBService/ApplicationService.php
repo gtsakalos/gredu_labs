@@ -59,6 +59,18 @@ class ApplicationService
         return $application;
         
     }
+
+    
+    public function updateApplication(Array $data, $application_id)
+    {
+        $application = R::load('application', $application_id)
+        foreach ($data as $key => $value)
+        {
+            $application[$key] = $value;
+        }
+        R::store($application);
+    }
+
     
     public function createItem(Array $data){
         required = ['lab', 'category', 'qty', 'application'];
