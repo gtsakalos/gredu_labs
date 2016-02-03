@@ -65,5 +65,16 @@ class LabService
         return $labs;
         
     }
+
+    public function updateLab(Array $data, $lab_id)
+    {
+        $lab = R::load('lab', $lab_id);
+        foreach ($data as $key => $value)
+        {
+            $lab[$key] = $value;
+        }
+        R::store($lab);
+        
+    }
     
 }
