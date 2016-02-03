@@ -61,5 +61,15 @@ class TeacherService
         return $teachers;
         
     }
+
+    public function updateTeacher(Array $data, $teacher_id)
+    {
+        $teacher = R::load('teacher', $teacher_id);
+        foreach ($data as $key => $value)
+        {
+            $teacher[$key] = $value;
+        }
+        R::store($teacher);
+    }
     
 }
