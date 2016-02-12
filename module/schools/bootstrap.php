@@ -40,7 +40,9 @@ return function (Slim\App $app) {
 
         $container[GrEduLabs\Schools\Action\Labs::class] = function ($c) {
             return new GrEduLabs\Schools\Action\Labs(
-                $c->get('view')
+                $c->get('view'),
+                $c->get('labservice'),
+                $c->get('staffservice')
             );
         };
 
