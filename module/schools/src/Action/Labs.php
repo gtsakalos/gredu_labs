@@ -13,50 +13,39 @@ namespace GrEduLabs\Schools\Action;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Views\Twig;
+use RedBeanPHP\R;
 
 class Labs
 {
     protected $view;
 
-    public function __construct(Twig $view)
+    public function __construct(Twig $view, $labservice, $staffservice)
     {
         $this->view = $view;
+        $this->labservice = $labservice;
+        $this->staffservice = $staffservice;
     }
 
     public function __invoke(Request $req, Response $res, array $args = [])
     {
+        $school = $req->getAttribute('school', false);
+        if (!$school) {
+            return $res->withStatus(403, 'No school');
+        }
+        $labs = $this->labservice->getLabsBySchoolId($school->id);
+        $staff = $this->staffservice->getTeachersBySchoolId($school->id);
+        $staff = R::exportAll($staff);
+        $clean_staff = [];
+        foreach ($staff as $obj) {
+            $clean_staff[] = [
+                'value' => $obj['id'],
+                'label' => $obj['name']." ".$obj['surname']
+                ];
+        }
+        error_log(print_r($staff, TRUE));
         return $this->view->render($res, 'schools/labs.twig', [
-            'labs' => [
-                [
-                    'id'              => 1,
-                    'name'            => 'ΕΡΓΑΣΤΗΡΙΟ ΠΛΗΡΟΦ/ΚΗΣ 1',
-                    'type'            => 1,
-                    'typeName'        => 'ΕΡΓΑΣΤΗΡΙΟ',
-                    'responsible'     => 1,
-                    'responsibleName' => 'Γιώργος Τάδε',
-                    'area'            => 24,
-                ],
-                [
-                    'id'              => 2,
-                    'name'            => 'ΕΡΓΑΣΤΗΡΙΟ ΠΛΗΡΟΦ/ΚΗΣ 2',
-                    'type'            => 2,
-                    'typeName'        => 'ΑΙΘΟΥΣΑ',
-                    'responsible'     => 2,
-                    'responsibleName' => 'Νίκος Τάδε',
-                    'area'            => 50,
-                ],
-            ],
-            'staff' => [
-                [
-                    'value' => 1,
-                    'label' => 'Γιώργος Τάδε',
-
-                ],
-                [
-                    'value' => 2,
-                    'label' => 'Νίκος Τάδε',
-                ],
-            ],
+            'labs' => $labs ,
+            'staff' => $clean_staff,
             'lab_types' => [
                 [
                     'value' => 1,

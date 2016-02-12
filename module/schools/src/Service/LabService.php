@@ -27,8 +27,9 @@ class LabService implements LabServiceInterface
     public function createLab(array $data)
     {
         $lab      = R::dispense('lab');
-        $required = ['school_id', 'name', 'type', 'area', 'in_school_use', 'out_school_use',
-                     'courses', 'attachment', 'has_network', 'has_server', ];
+        $required = ['school_id', 'name', 'type', 'area', 'use_in_program', 'use_ext_program',
+                     'lessons' ];
+        $optional = ['attachment', 'has_network', 'has_server' ];
         foreach ($required as $value) {
             if (array_key_exists($value, $data)) {
                 $lab[$value] = $data[$value];

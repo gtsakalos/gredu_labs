@@ -23,19 +23,31 @@ class LabCreate
 
     public function __invoke(Request $req, Response $res, array $args = [])
     {
+        error_log(print_r('i am hre', TRUE)); 
+        $school = $req->getAttribute('school', false);
+        if (!$school) {
+            return $res->withStatus(403, 'No school');
+        }
         $params = $req->getParams();
-        if (array_key_exists('id', $params)) {
-            $id = $params['id'];
-            unset($params['id']);
+        error_log(print_r($params, TRUE)); 
+        $id     = $params['id'];
+        unset($params['id']);
+        $params['school_id'] = $school->id;
+        if ($id > 0) {
             $id  = $this->labservice->updateLab($params, $id);
             $lab = $this->labservice->getLabById($id);
         } else {
             $id  = $this->labservice->createLab($params);
-            $lab = $this->labservice->getLabById($id);
+            if ($id > 0) {
+                $lab = $this->labservice->getLabById($id);
+            }
+        }
+        if (isset($lab)) {
+            return $res->withJson($lab->export())->withStatus(201);
+        }
+        else {
+            return $res->withStatus(400);
         }
 
-        $res = $res->withJson($lab->export());
-
-        return $res;
     }
 }
