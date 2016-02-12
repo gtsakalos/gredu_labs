@@ -28,20 +28,20 @@ class RedBeanPHP extends AbstractAdapter
     protected $events;
 
     /**
-     * @var string
+     * @var callable
      */
-    protected $identityClass;
+    protected $resolveIdentityClass;
 
     /**
      * @var PasswordInterface
      */
     protected $crypt;
 
-    public function __construct(callable $events, $identityClass, PasswordInterface $crypt)
+    public function __construct(callable $events, callable $resolveIdentityClass, PasswordInterface $crypt)
     {
-        $this->events        = $events;
-        $this->identityClass = (string) $identityClass;
-        $this->crypt         = $crypt;
+        $this->events               = $events;
+        $this->resolveIdentityClass = $resolveIdentityClass;
+        $this->crypt                = $crypt;
     }
 
     public function authenticate()
@@ -49,10 +49,17 @@ class RedBeanPHP extends AbstractAdapter
         $events = $this->events;
         $events('trigger', 'authenticate', $this);
 
-        $user = R::findOne('user', 'mail = ? AND authentication_source = ?', [
-            $this->getIdentity(),
-            'DB',
+
+        $email             = filter_var($this->getIdentity(), FILTER_VALIDATE_EMAIL);
+        $isValidCredential = filter_var(strlen(trim($this->getCredential())), FILTER_VALIDATE_INT, [
+            'options'=> ['min_range' => 8],
         ]);
+
+        if (!$email || !$isValidCredential) {
+            return new Result(Result::FAILURE_CREDENTIAL_INVALID, null, [self::$failMessage]);
+        }
+
+        $user = R::findOne('user', 'mail = ? AND authentication_source = ?', [$email, 'DB']);
 
         if (!$user) {
             return new Result(Result::FAILURE_IDENTITY_NOT_FOUND, null, [self::$failMessage]);
@@ -62,8 +69,9 @@ class RedBeanPHP extends AbstractAdapter
             return new Result(Result::FAILURE_CREDENTIAL_INVALID, null, [self::$failMessage]);
         }
 
-        $identityClass = $this->identityClass;
+        $identityClass = call_user_func($this->resolveIdentityClass);
         $identity      = new $identityClass(
+            $user->id,
             $user->uid,
             $user->mail,
             $user->displayName,

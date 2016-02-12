@@ -25,6 +25,10 @@ class Index
 
     public function __invoke(Request $req, Response $res, array $args = [])
     {
-        return $this->view->render($res, 'schools/index.twig');
+        $school = $req->getAttribute('school');
+
+        return $this->view->render($res, 'schools/index.twig', [
+            'school' => $school->export(),
+        ]);
     }
 }

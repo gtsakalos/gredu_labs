@@ -13,11 +13,17 @@ return function (Slim\App $app) {
     $container = $app->getContainer();
     $events    = $container['events'];
 
-    $events('on', 'app.services', function ($stop, $container) {
-        $container['ldap'] = function ($c) {
-            $settings = $c['settings']['ldap'];
+    $events('on', 'app.autoload', function ($stop, $autoloader) {
+        $autoloader->addPsr4('SchInventory\\', __DIR__ . '/src/');
+    });
 
-            return new Zend\Ldap\Ldap($settings);
+    $events('on', 'app.services', function ($stop, $container) {
+        $container['SchInventory\\Service'] = function ($c) {
+            $settings = $c['settings'];
+
+            return new SchInventory\GuzzleHttpService(
+                new GuzzleHttp\Client($settings['inventory'])
+            );
         };
     });
 };

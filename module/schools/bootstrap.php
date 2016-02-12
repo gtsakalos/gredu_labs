@@ -11,82 +11,89 @@
 return function (Slim\App $app) {
 
     $container = $app->getContainer();
+    $events    = $container['events'];
 
-    $container['autoloader']->addPsr4('GrEduLabs\\Schools\\', __DIR__ . '/src/');
-
-    $container[GrEduLabs\Schools\Action\Index::class] = function ($c) {
-        return new GrEduLabs\Schools\Action\Index(
-            $c->get('view'),
-            $c->get('schoolservice')
-        );
-    };
-
-    $container[GrEduLabs\Schools\Action\Staff::class] = function ($c) {
-        return new GrEduLabs\Schools\Action\Staff(
-            $c->get('view'),
-            $c->get('staffservice')
-            );
-    };
-
-    $container[GrEduLabs\Schools\Action\StaffCreate::class] = function ($c) {
-        return new GrEduLabs\Schools\Action\StaffCreate(
-            $c->get('staffservice')
-            );
-    };
-
-    $container[GrEduLabs\Schools\Action\Labs::class] = function ($c) {
-        return new GrEduLabs\Schools\Action\Labs(
-            $c->get('view')
-            );
-    };
-
-    $container[GrEduLabs\Schools\Action\LabCreate::class] = function ($c) {
-        return new GrEduLabs\Schools\Action\LabCreate(
-            $c->get('labservice')
-            );
-    };
-
-    $container[GrEduLabs\Schools\Action\Assets::class] = function ($c) {
-        return new GrEduLabs\Schools\Action\Assets($c->get('view'));
-    };
-
-    $container['schoolservice'] = function($c){
-        return new GrEduLabs\Schools\Service\SchoolService();
-    };
-
-    $container['staffservice'] = function($c){
-        return new GrEduLabs\Schools\Service\StaffService(
-            $c->get('schoolservice')
-        );
-    };
-
-    $container['labservice'] = function($c){
-        return new GrEduLabs\Schools\Service\LabService(
-            $c->get('schoolservice'),
-            $c->get('staffservice')
-        );
-    };
-
-    $container['assetservice'] = function($c){
-        return new GrEduLabs\Schools\Service\AssetService(
-            $c->get('schoolservice'),
-            $c->get('labservice')
-        );
-    };
-
-
-    $events = $container['events'];
-
-    $events('on', 'bootstrap', function () use ($container) {
-        $container['view']->getEnvironment()->getLoader()->prependPath(__DIR__ . '/templates');
+    $events('on', 'app.autoload', function ($stop, $autoloader) {
+        $autoloader->addPsr4('GrEduLabs\\Schools\\', __DIR__ . '/src/');
     });
 
-    $app->group('/school', function () {
-        $this->get('', GrEduLabs\Schools\Action\Index::class)->setName('school');
-        $this->get('/staff', GrEduLabs\Schools\Action\Staff::class)->setName('school.staff');
-        $this->post('/staff', GrEduLabs\Schools\Action\StaffCreate::class)->setName('school.staffcreate');
-        $this->get('/labs', GrEduLabs\Schools\Action\Labs::class)->setName('school.labs');
-        $this->post('/labs', GrEduLabs\Schools\Action\LabCreate::class)->setName('school.labcreate');
-        $this->get('/assets', GrEduLabs\Schools\Action\Assets::class)->setName('school.assets');
+    $events('on', 'app.services', function ($stop, $container) {
+        $container[GrEduLabs\Schools\Action\Index::class] = function ($c) {
+            return new GrEduLabs\Schools\Action\Index(
+                 $c->get('view'),
+                 $c->get('schoolservice')
+            );
+        };
+
+        $container[GrEduLabs\Schools\Action\Staff::class] = function ($c) {
+            return new GrEduLabs\Schools\Action\Staff(
+                $c->get('view'),
+                $c->get('staffservice')
+            );
+        };
+
+        $container[GrEduLabs\Schools\Action\StaffCreate::class] = function ($c) {
+            return new GrEduLabs\Schools\Action\StaffCreate(
+                $c->get('staffservice')
+            );
+        };
+
+        $container[GrEduLabs\Schools\Action\Labs::class] = function ($c) {
+            return new GrEduLabs\Schools\Action\Labs(
+                $c->get('view')
+            );
+        };
+
+        $container[GrEduLabs\Schools\Action\LabCreate::class] = function ($c) {
+            return new GrEduLabs\Schools\Action\LabCreate(
+                 $c->get('labservice')
+            );
+        };
+
+        $container[GrEduLabs\Schools\Action\Assets::class] = function ($c) {
+            return new GrEduLabs\Schools\Action\Assets($c->get('view'));
+        };
+
+        $container['schoolservice'] = function ($c) {
+            return new GrEduLabs\Schools\Service\SchoolService();
+        };
+
+        $container['staffservice'] = function ($c) {
+            return new GrEduLabs\Schools\Service\StaffService(
+                $c->get('schoolservice')
+            );
+        };
+
+        $container['labservice'] = function ($c) {
+            return new GrEduLabs\Schools\Service\LabService(
+                $c->get('schoolservice'),
+                $c->get('staffservice')
+            );
+        };
+
+        $container['assetservice'] = function ($c) {
+            return new GrEduLabs\Schools\Service\AssetService(
+                $c->get('schoolservice'),
+                $c->get('labservice')
+            );
+        };
+
+        $container[GrEduLabs\Schools\Middleware\FetchSchoolFromIdentity::class] = function ($c) {
+            return new GrEduLabs\Schools\Middleware\FetchSchoolFromIdentity($c['authentication_service']);
+        };
+
+    });
+
+    $events('on', 'app.bootstrap', function ($stop, $app, $container) {
+        $container['view']->getEnvironment()->getLoader()->prependPath(__DIR__ . '/templates');
+
+        $app->group('/school', function () {
+            $this->get('', GrEduLabs\Schools\Action\Index::class)->setName('school');
+            $this->get('/staff', GrEduLabs\Schools\Action\Staff::class)->setName('school.staff');
+            $this->post('/staff', GrEduLabs\Schools\Action\StaffCreate::class)->setName('school.staffcreate');
+            $this->get('/labs', GrEduLabs\Schools\Action\Labs::class)->setName('school.labs');
+            $this->post('/labs', GrEduLabs\Schools\Action\LabCreate::class)->setName('school.labcreate');
+            $this->get('/assets', GrEduLabs\Schools\Action\Assets::class)->setName('school.assets');
+        })->add(GrEduLabs\Schools\Middleware\FetchSchoolFromIdentity::class);
     });
 };
