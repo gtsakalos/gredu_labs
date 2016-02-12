@@ -26,7 +26,11 @@ class Staff
 
     public function __invoke(Request $req, Response $res, array $args = [])
     {
-        $staff = $this->staffservice->getTeachersBySchoolId(1);
+        $school = $req->getAttribute('school', false);
+        if (!$school) {
+            return $res->withStatus(403, 'No school');
+        }
+        $staff = $this->staffservice->getTeachersBySchoolId($school->id);
 
         return $this->view->render($res, 'schools/staff.twig', [
             'staff'     => array_map(function ($employee) {
